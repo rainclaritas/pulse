@@ -64,6 +64,21 @@
     const idx = Math.min(4, Math.floor((val - 1) / 2.5));
     return moodEmojis[idx];
   }
+  
+  function shareMood() {
+    const emoji = getMoodEmoji(mood);
+    const text = `Today's mood: ${mood}/10 ${emoji}\nEnergy: ${energy}/10 ⚡\n\n#PulseDaily`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'My Pulse Check-in',
+        text: text
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(text);
+      alert('Copied to clipboard! 📋');
+    }
+  }
 </script>
 
 <div class="p-4 md:p-8 pt-6">
@@ -160,19 +175,31 @@
   </div>
   
   <!-- Save Button -->
-  <button
-    onclick={save}
-    disabled={saving}
-    class="btn btn-primary w-full mt-6 text-lg font-medium animate-fade-in stagger-5 {saved ? 'bg-green-500' : ''}"
-  >
-    {#if saving}
-      Saving...
-    {:else if saved}
-      Saved! ✓
-    {:else}
-      Save Check-in
+  <div class="flex gap-2 mt-6 animate-fade-in stagger-5">
+    <button
+      onclick={save}
+      disabled={saving}
+      class="btn btn-primary flex-1 text-lg font-medium {saved ? 'bg-green-500' : ''}"
+    >
+      {#if saving}
+        Saving...
+      {:else if saved}
+        Saved! ✓
+      {:else}
+        Save Check-in
+      {/if}
+    </button>
+    
+    {#if saved}
+      <button
+        onclick={shareMood}
+        class="btn btn-secondary px-4"
+        aria-label="Share your mood"
+      >
+        📤
+      </button>
     {/if}
-  </button>
+  </div>
   
   <!-- Tips -->
   <div class="mt-8 text-center text-text-tertiary text-sm animate-fade-in">
