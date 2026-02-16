@@ -40,34 +40,42 @@
   });
   
   function save() {
-    saving = true;
-    
-    const entry = {
-      id: crypto.randomUUID(),
-      date: todayDate,
-      mood,
-      energy,
-      highlight: highlight.trim() || null,
-      gratitude: gratitude.trim() || null,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    };
-    
-    entries.addOrUpdate(entry);
-    
-    // Manually save to localStorage to ensure it works
-    const current = JSON.parse(localStorage.getItem('pulse_entries') || '[]');
-    const idx = current.findIndex((e: any) => e.date === todayDate);
-    if (idx >= 0) {
-      current[idx] = entry;
-    } else {
-      current.push(entry);
+    try {
+      // Create entry
+      const entry = {
+        id: crypto.randomUUID(),
+        date: todayDate,
+        mood,
+        energy,
+        highlight: highlight.trim() || null,
+        gratitude: gratitude.trim() || null,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      };
+      
+      saving = true;
+      
+      // Direct save to localStorage - bypass store
+      const stored = localStorage.getItem('pulse_entries');
+      let current = stored ? JSON.parse(stored) : [];
+      const existingIndex = current.findIndex((e: any) => e.date === todayDate);
+      if (existingIndex >= 0) {
+        current[existingIndex] = { ...current[existingIndex], ...entry, updatedAt: Date.now() };
+      } else {
+        current.push(entry);
+      }
+      localStorage.setItem('pulse_entries', JSON.stringify(current));
+      
+      // Also update store
+      entries.save(current);
+      
+      saving = false;
+      saved = true;
+      setTimeout(() => saved = false, 2000);
+    } catch (e) {
+      alert('Error saving: ' + e);
+      saving = false;
     }
-    localStorage.setItem('pulse_entries', JSON.stringify(current));
-    
-    saving = false;
-    saved = true;
-    setTimeout(() => saved = false, 2000);
   }
   
   function getMoodEmoji(val: number): string {
@@ -204,9 +212,9 @@
   </div>
   
   <!-- Save Button -->
-  <div class="flex gap-2 mt-6 animate-fade-in stagger-5">
+  <form onsubmit={(e) => { e.preventDefault(); save(); }} class="flex gap-2 mt-6 animate-fade-in stagger-5">
     <button
-      onclick={save}
+      type="submit"
       disabled={saving}
       class="btn btn-primary flex-1 text-lg font-medium {saved ? 'bg-green-500' : ''}"
     >
@@ -221,6 +229,7 @@
     
     {#if saved}
       <button
+        type="button"
         onclick={shareMood}
         class="btn btn-secondary px-4"
         aria-label="Share your mood"
@@ -228,7 +237,7 @@
         📤
       </button>
     {/if}
-  </div>
+  </form>
   
   <!-- Tips -->
   <div class="mt-8 text-center text-text-tertiary text-sm animate-fade-in">
