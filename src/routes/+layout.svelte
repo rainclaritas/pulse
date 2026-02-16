@@ -6,6 +6,12 @@
   import Onboarding from '$lib/components/Onboarding.svelte';
   import { onMount } from 'svelte';
   
+  // Type for PWA install prompt
+  interface BeforeInstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  }
+  
   let { children } = $props();
   let deferredPrompt = $state<BeforeInstallPromptEvent | null>(null);
   let showInstallBanner = $state(false);
@@ -55,6 +61,8 @@
 
 <svelte:head>
   <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -62,6 +70,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Pulse">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
   <title>Pulse</title>
 </svelte:head>
 

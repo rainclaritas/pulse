@@ -1,5 +1,6 @@
 <script lang="ts">
   import { entries } from '$lib/stores';
+  import type { DailyEntry } from '$lib/stores';
   
   let currentMonth = $state(new Date());
   
@@ -8,11 +9,11 @@
     const month = currentMonth.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     
-    const result: { day: number; entry: typeof $entries[0] | null }[] = [];
+    const result: { day: number; entry: DailyEntry | null }[] = [];
     
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      const entry = $entries.find(e => e.date === dateStr);
+      const entry = $entries.find(e => e.date === dateStr) ?? null;
       result.push({ day: d, entry });
     }
     
@@ -53,9 +54,9 @@
     return checkDate > today;
   }
   
-  let selectedEntry = $state<typeof $entries[0] | null>(null);
+  let selectedEntry = $state<DailyEntry | null>(null);
   
-  function selectEntry(entry: typeof $entries[0] | null) {
+  function selectEntry(entry: DailyEntry | null) {
     selectedEntry = entry;
   }
 </script>
