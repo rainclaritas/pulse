@@ -2,14 +2,38 @@
   import '../app.css';
   import { page } from '$app/stores';
   import { entries, settings } from '$lib/stores';
+  import { onboarding } from '$lib/onboarding';
+  import Onboarding from '$lib/components/Onboarding.svelte';
   import { onMount } from 'svelte';
   
   let { children } = $props();
+  let deferredPrompt = $state<BeforeInstallPromptEvent | null>(null);
+  let showInstallBanner = $state(false);
   
   onMount(() => {
     entries.init();
     settings.init();
+    
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(console.error);
+    }
+    
+    // Handle PWA install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e as BeforeInstallPromptEvent;
+      showInstallBanner = true;
+    });
   });
+  
+  async function installApp() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    showInstallBanner = false;
+  }
   
   const navItems = [
     { href: '/', icon: 'home', label: 'Today' },
@@ -30,16 +54,38 @@
 </script>
 
 <svelte:head>
+  <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#FF6B4A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pulse">
   <title>Pulse</title>
 </svelte:head>
 
 <div class="min-h-screen pb-20 md:pb-0 md:pl-20">
+  <Onboarding />
   <main class="max-w-lg mx-auto md:max-w-none md:mx-0">
     {@render children()}
   </main>
+  
+  <!-- PWA Install Banner -->
+  {#if showInstallBanner}
+    <div class="fixed bottom-20 left-4 right-4 md:bottom-4 md:left-auto md:right-4 md:w-96 bg-bg-secondary border border-white/10 rounded-xl p-4 shadow-xl z-40 animate-slide-up">
+      <div class="flex items-start gap-3">
+        <div class="text-2xl">⚡</div>
+        <div class="flex-1">
+          <h3 class="font-medium text-sm">Install Pulse</h3>
+          <p class="text-xs text-text-secondary mt-1">Add to home screen for quick access</p>
+        </div>
+        <button onclick={installApp} class="btn btn-primary text-sm py-2 px-3">
+          Install
+        </button>
+      </div>
+    </div>
+  {/if}
   
   <!-- Mobile Bottom Nav -->
   <nav class="fixed bottom-0 left-0 right-0 bg-bg-secondary/95 backdrop-blur-md border-t border-white/6 md:hidden z-50 safe-area-bottom">

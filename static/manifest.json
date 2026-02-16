@@ -1,0 +1,42 @@
+{
+  "name": "Pulse - Daily Check-in",
+  "short_name": "Pulse",
+  "description": "Track your mood, energy, and daily reflections",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0F",
+  "theme_color": "#FF6B4A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["Health & Fitness", "Lifestyle"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Today's Check-in",
+      "url": "/",
+      "description": "Complete your daily check-in"
+    },
+    {
+      "name": "View Trends",
+      "url": "/trends",
+      "description": "See your mood & energy trends"
+    }
+  ]
+}

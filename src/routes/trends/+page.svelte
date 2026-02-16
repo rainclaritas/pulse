@@ -43,6 +43,44 @@
   
   let totalEntries = $derived(chartData.filter(d => d.mood !== null).length);
   
+  // Insights
+  let moodTrend = $derived.by(() => {
+    const withData = chartData.filter(d => d.mood !== null);
+    if (withData.length < 3) return 'neutral';
+    const firstHalf = withData.slice(0, Math.floor(withData.length / 2));
+    const secondHalf = withData.slice(Math.floor(withData.length / 2));
+    const firstAvg = firstHalf.reduce((s, d) => s + (d.mood || 0), 0) / firstHalf.length;
+    const secondAvg = secondHalf.reduce((s, d) => s + (d.mood || 0), 0) / secondHalf.length;
+    if (secondAvg - firstAvg > 0.5) return 'up';
+    if (firstAvg - secondAvg > 0.5) return 'down';
+    return 'neutral';
+  });
+  
+  let bestDay = $derived.by(() => {
+    const withData = chartData.filter(d => d.mood !== null);
+    if (withData.length === 0) return null;
+    return withData.reduce((best, d) => (d.mood || 0) > (best.mood || 0) ? d : best);
+  });
+  
+  let worstDay = $derived.by(() => {
+    const withData = chartData.filter(d => d.mood !== null);
+    if (withData.length === 0) return null;
+    return withData.reduce((worst, d) => (d.mood || 0) < (worst.mood || 0) ? d : worst);
+  });
+  
+  // Badges
+  let badges = $derived.by(() => {
+    const b: { name: string; emoji: string; unlocked: boolean }[] = [
+      { name: 'First Step', emoji: '🌟', unlocked: $entries.length >= 1 },
+      { name: 'Week Warrior', emoji: '📅', unlocked: $streak >= 7 },
+      { name: 'Month Master', emoji: '🗓️', unlocked: $streak >= 30 },
+      { name: 'Consistent', emoji: '💪', unlocked: $streak >= 14 },
+      { name: 'Mood Tracker', emoji: '📈', unlocked: totalEntries >= 10 },
+      { name: 'Data Collector', emoji: '📊', unlocked: totalEntries >= 30 },
+    ];
+    return b;
+  });
+  
   function getBarHeight(val: number | null): number {
     if (val === null) return 0;
     return (val / 10) * 100;
@@ -52,8 +90,6 @@
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' });
   }
-  
-  let maxVal = $derived(Math.max(...chartData.map(d => d.mood || 0), ...chartData.map(d => d.energy || 0), 1));
 </script>
 
 <div class="p-4 md:p-8 pt-6">
@@ -81,6 +117,48 @@
       <div class="text-xs text-text-secondary">Avg Energy</div>
     </div>
   </div>
+  
+  <!-- Badges -->
+  <div class="mt-4 animate-fade-in stagger-2">
+    <h2 class="text-sm font-medium text-text-secondary mb-2">Achievements</h2>
+    <div class="flex flex-wrap gap-2">
+      {#each badges as badge}
+        <div 
+          class="px-3 py-2 rounded-xl text-sm flex items-center gap-2 transition-all {badge.unlocked ? 'bg-accent/20 text-accent' : 'bg-bg-tertiary text-text-tertiary opacity-50'}"
+        >
+          <span>{badge.emoji}</span>
+          <span>{badge.name}</span>
+        </div>
+      {/each}
+    </div>
+  </div>
+  
+  <!-- Insights -->
+  {#if totalEntries >= 3}
+    <div class="card mt-4 animate-fade-in stagger-3">
+      <h2 class="text-sm font-medium text-text-secondary mb-3">Insights</h2>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-sm">Mood Trend</span>
+          <span class="text-sm {moodTrend === 'up' ? 'text-green-400' : moodTrend === 'down' ? 'text-red-400' : 'text-text-secondary'}">
+            {#if moodTrend === 'up'}↑ Improving{:else if moodTrend === 'down'}↓ Declining{:else}→ Stable{/if}
+          </span>
+        </div>
+        {#if bestDay}
+          <div class="flex items-center justify-between">
+            <span class="text-sm">Best Day</span>
+            <span class="text-sm text-green-400">{formatDate(bestDay.date)} (mood: {bestDay.mood})</span>
+          </div>
+        {/if}
+        {#if worstDay}
+          <div class="flex items-center justify-between">
+            <span class="text-sm">Toughest Day</span>
+            <span class="text-sm text-red-400">{formatDate(worstDay.date)} (mood: {worstDay.mood})</span>
+          </div>
+        {/if}
+      </div>
+    </div>
+  {/if}
   
   <!-- Range Selector -->
   <div class="flex gap-2 mt-6 animate-fade-in stagger-2">
