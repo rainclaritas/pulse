@@ -55,14 +55,19 @@
     
     entries.addOrUpdate(entry);
     
-    // Force reactivity update
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        saving = false;
-        saved = true;
-        setTimeout(() => saved = false, 2000);
-      }, 50);
-    });
+    // Manually save to localStorage to ensure it works
+    const current = JSON.parse(localStorage.getItem('pulse_entries') || '[]');
+    const idx = current.findIndex((e: any) => e.date === todayDate);
+    if (idx >= 0) {
+      current[idx] = entry;
+    } else {
+      current.push(entry);
+    }
+    localStorage.setItem('pulse_entries', JSON.stringify(current));
+    
+    saving = false;
+    saved = true;
+    setTimeout(() => saved = false, 2000);
   }
   
   function getMoodEmoji(val: number): string {
