@@ -85,6 +85,7 @@
       <button
         onclick={toggleReminder}
         class="w-12 h-7 rounded-full transition-colors {reminderEnabled ? 'bg-accent' : 'bg-bg-tertiary'}"
+        aria-label="Toggle daily reminder"
       >
         <div class="w-5 h-5 rounded-full bg-white transition-transform {reminderEnabled ? 'translate-x-6' : 'translate-x-1'}"></div>
       </button>
@@ -92,8 +93,9 @@
     
     {#if reminderEnabled}
       <div class="animate-fade-in">
-        <label class="text-sm text-text-secondary block mb-2">Reminder time</label>
+        <label for="reminder-time" class="text-sm text-text-secondary block mb-2">Reminder time</label>
         <input
+          id="reminder-time"
           type="time"
           value={reminderTime}
           onchange={updateReminderTime}

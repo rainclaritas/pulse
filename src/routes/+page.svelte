@@ -50,11 +50,14 @@
     
     entries.addOrUpdate(entry);
     
-    setTimeout(() => {
-      saving = false;
-      saved = true;
-      setTimeout(() => saved = false, 2000);
-    }, 300);
+    // Force reactivity update
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        saving = false;
+        saved = true;
+        setTimeout(() => saved = false, 2000);
+      }, 50);
+    });
   }
   
   function getMoodEmoji(val: number): string {
@@ -73,12 +76,13 @@
   <!-- Mood Slider -->
   <div class="card mt-6 animate-fade-in stagger-1">
     <div class="flex items-center justify-between mb-4">
-      <label class="text-sm font-medium text-text-secondary">Mood</label>
+      <label for="mood-slider" class="text-sm font-medium text-text-secondary">Mood</label>
       <span class="text-3xl animate-pulse" style="opacity: {saved ? 1 : 0}">✨</span>
     </div>
     
     <div class="relative mb-2">
       <input
+        id="mood-slider"
         type="range"
         min="1"
         max="10"
@@ -96,10 +100,11 @@
   
   <!-- Energy Slider -->
   <div class="card mt-4 animate-fade-in stagger-2">
-    <label class="text-sm font-medium text-text-secondary block mb-4">Energy</label>
+    <label for="energy-slider" class="text-sm font-medium text-text-secondary block mb-4">Energy</label>
     
     <div class="relative mb-2">
       <input
+        id="energy-slider"
         type="range"
         min="1"
         max="10"
@@ -124,10 +129,11 @@
   
   <!-- Highlight -->
   <div class="card mt-4 animate-fade-in stagger-3">
-    <label class="text-sm font-medium text-text-secondary block mb-2">
+    <label for="highlight-input" class="text-sm font-medium text-text-secondary block mb-2">
       ✨ Best part of your day
     </label>
     <textarea
+      id="highlight-input"
       bind:value={highlight}
       maxlength="140"
       rows="2"
@@ -139,10 +145,11 @@
   
   <!-- Gratitude -->
   <div class="card mt-4 animate-fade-in stagger-4">
-    <label class="text-sm font-medium text-text-secondary block mb-2">
+    <label for="gratitude-input" class="text-sm font-medium text-text-secondary block mb-2">
       🙏 Grateful for
     </label>
     <textarea
+      id="gratitude-input"
       bind:value={gratitude}
       maxlength="140"
       rows="2"

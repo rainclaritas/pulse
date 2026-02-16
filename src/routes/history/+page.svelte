@@ -71,11 +71,11 @@
   <div class="card mt-6 animate-fade-in stagger-1">
     <!-- Month Nav -->
     <div class="flex items-center justify-between mb-4">
-      <button onclick={prevMonth} class="btn btn-secondary p-2">
+      <button onclick={prevMonth} class="btn btn-secondary p-2" aria-label="Previous month">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <span class="font-medium">{formatMonth(currentMonth)}</span>
-      <button onclick={nextMonth} class="btn btn-secondary p-2">
+      <button onclick={nextMonth} class="btn btn-secondary p-2" aria-label="Next month">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
@@ -118,7 +118,7 @@
         <div>
           <h3 class="font-medium">{new Date(selectedEntry.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</h3>
         </div>
-        <button onclick={() => selectEntry(null)} class="text-text-tertiary hover:text-text-primary">
+        <button onclick={() => selectEntry(null)} class="text-text-tertiary hover:text-text-primary" aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
