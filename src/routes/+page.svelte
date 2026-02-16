@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { entries, today, settings } from '$lib/stores';
+  import { entries, today, settings, streak } from '$lib/stores';
   import { onMount } from 'svelte';
   
   let mood = $state(5);
@@ -13,6 +13,11 @@
   
   const moodEmojis = ['😢', '😕', '😐', '🙂', '😄'];
   const moodLabels = ['Awful', 'Bad', 'Okay', 'Good', 'Great'];
+  
+  // Quick stats
+  let totalCheckins = $derived($entries.length);
+  let currentStreak = $derived($streak);
+  let hasCheckedInToday = $derived(!!$today);
   
   onMount(() => {
     const existing = $today;
@@ -86,6 +91,25 @@
   <div class="animate-fade-in">
     <h1 class="text-2xl font-semibold font-[var(--font-outfit)] mb-1">How are you feeling?</h1>
     <p class="text-text-secondary text-sm">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+  </div>
+  
+  <!-- Quick Stats -->
+  <div class="flex gap-3 mt-4 animate-fade-in">
+    <div class="flex-1 bg-bg-secondary rounded-xl p-3 text-center border border-white/6">
+      <div class="text-xl">🔥</div>
+      <div class="font-[var(--font-jetbrains)] font-semibold">{currentStreak}</div>
+      <div class="text-xs text-text-tertiary">Streak</div>
+    </div>
+    <div class="flex-1 bg-bg-secondary rounded-xl p-3 text-center border border-white/6">
+      <div class="text-xl">📊</div>
+      <div class="font-[var(--font-jetbrains)] font-semibold">{totalCheckins}</div>
+      <div class="text-xs text-text-tertiary">Check-ins</div>
+    </div>
+    <div class="flex-1 bg-bg-secondary rounded-xl p-3 text-center border border-white/6 {hasCheckedInToday ? 'border-accent/50' : ''}">
+      <div class="text-xl">{hasCheckedInToday ? '✅' : '⏳'}</div>
+      <div class="font-[var(--font-jetbrains)] font-semibold">{hasCheckedInToday ? 'Done' : 'Pending'}</div>
+      <div class="text-xs text-text-tertiary">Today</div>
+    </div>
   </div>
   
   <!-- Mood Slider -->
