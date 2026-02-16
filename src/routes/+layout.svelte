@@ -15,6 +15,8 @@
   let { children } = $props();
   let deferredPrompt = $state<BeforeInstallPromptEvent | null>(null);
   let showInstallBanner = $state(false);
+  let isOnline = $state(true);
+  let isVisible = $state(true);
   
   onMount(() => {
     entries.init();
@@ -30,6 +32,16 @@
       e.preventDefault();
       deferredPrompt = e as BeforeInstallPromptEvent;
       showInstallBanner = true;
+    });
+    
+    // Track online status
+    isOnline = navigator.onLine;
+    window.addEventListener('online', () => isOnline = true);
+    window.addEventListener('offline', () => isOnline = false);
+    
+    // Track visibility
+    document.addEventListener('visibilitychange', () => {
+      isVisible = !document.hidden;
     });
   });
   
@@ -94,6 +106,13 @@
           Install
         </button>
       </div>
+    </div>
+  {/if}
+  
+  <!-- Offline Banner -->
+  {#if !isOnline}
+    <div class="fixed top-0 left-0 right-0 bg-yellow-500/90 text-yellow-900 text-center text-sm py-2 z-50">
+      You're offline. Changes will sync when back online.
     </div>
   {/if}
   
